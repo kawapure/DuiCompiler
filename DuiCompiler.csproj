@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>Kawapure.DuiCompiler.DuiCompilerMain</StartupObject>
+    <RootNamespace>Kawapure.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <AssemblyName>duic</AssemblyName>
+    <PackageProjectUrl>https://github.com/kawapure/DuiCompiler</PackageProjectUrl>
+    <Copyright>by kawapure</Copyright>
+    <Description>DirectUI UI file compiler</Description>
+    <Company>by kawapure</Company>
+    <Product>DuiCompiler</Product>
+    <AssemblyVersion>1.0</AssemblyVersion>
+    <FileVersion>1.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Preprocessor\" />
+  </ItemGroup>
+
+</Project>

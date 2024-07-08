@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DuiCompiler": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"D:\\0e\\Friends\\Travis\\LogonDUI\\LogonDUI\\main.ui\""
+    }
+  }
+}
