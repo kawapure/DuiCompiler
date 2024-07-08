@@ -9,5 +9,6 @@ namespace Kawapure.DuiCompiler.Parser
     internal interface ITextReaderSourceProvider
     {
         public string Contents { get; }
+        public TextReader GetNewReader(int defaultOffset = 0);
     }
 }

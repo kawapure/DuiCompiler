@@ -8,7 +8,7 @@ namespace Kawapure.DuiCompiler.Parser
 {
     internal struct SourceOrigin
     {
-        public SourceFile sourceFileReader;
+        public ITextReaderSourceProvider sourceProvider;
         public uint cursorOffset;
     }
 }

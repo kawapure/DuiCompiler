@@ -46,6 +46,14 @@ namespace Kawapure.DuiCompiler.Parser
     /// </remarks>
     internal class Tokenizer
     {
+        [Flags]
+        public enum AllowedLanguage
+        {
+            NONE         = 0b0000,
+            DUIXML       = 0b0001,
+            PREPROCESSOR = 0b0010,
+        }
+
         /// <summary>
         /// Mode for parsing the tokens.
         /// </summary>
@@ -86,6 +94,8 @@ namespace Kawapure.DuiCompiler.Parser
             BREAK,
         }
 
+        //---------------------------------------------------------------------
+
         protected TokenizerMode GetTokenTargetMode(string token)
         {
             return token switch
@@ -121,16 +131,71 @@ namespace Kawapure.DuiCompiler.Parser
         /// <summary>
         /// The source file we're reading from.
         /// </summary>
-        
-        // TODO(izzy): Make this optional. We'll have parser contexts where
-        // there is no source file on disk for parsing quoted functions in
-        // DUIXML.
-        protected SourceFile m_sourceFile;
+        protected ITextReaderSourceProvider m_sourceFile;
 
         /// <summary>
         /// The main text reader object to use.
         /// </summary>
         protected TextReader m_reader;
+
+        //---------------------------------------------------------------------
+
+        protected AllowedLanguage m_allowedLanguages = AllowedLanguage.NONE;
+
+        /// <summary>
+        /// Allow the tokenizer to produce DUI XML tokens.
+        /// </summary>
+        /// <remarks>
+        /// DUI XML shouldn't be tokenized when we're targeting C header files,
+        /// so we will set this flag when that's the case.
+        /// </remarks>
+        protected bool m_bAllowDuiXml
+        {
+            get
+            {
+                return (m_allowedLanguages & AllowedLanguage.DUIXML) != AllowedLanguage.NONE;
+            }
+
+            set
+            {
+                if (value == true)
+                {
+                    m_allowedLanguages |= AllowedLanguage.DUIXML;
+                }
+                else
+                {
+                    m_allowedLanguages &= ~AllowedLanguage.DUIXML;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Allow the tokenizer to produce preprocessor tokens.
+        /// </summary>
+        /// <remarks>
+        /// We don't parse preprocessor tokens when parsing quoted attribute
+        /// strings in DUIXML files. Preprocessor tokens should never occur
+        /// in such a situation.
+        /// </remarks>
+        protected bool m_bAllowPreprocessor
+        {
+            get
+            {
+                return (m_allowedLanguages & AllowedLanguage.PREPROCESSOR) != AllowedLanguage.NONE;
+            }
+
+            set
+            {
+                if (value == true)
+                {
+                    m_allowedLanguages |= AllowedLanguage.PREPROCESSOR;
+                }
+                else
+                {
+                    m_allowedLanguages &= ~AllowedLanguage.PREPROCESSOR;
+                }
+            }
+        }
 
         //---------------------------------------------------------------------
 
@@ -190,11 +255,14 @@ namespace Kawapure.DuiCompiler.Parser
 
         //---------------------------------------------------------------------
 
-        public Tokenizer(SourceFile sourceFile)
+        public Tokenizer(ITextReaderSourceProvider sourceFile, AllowedLanguage allowedLanguages)
         {
             m_sourceFile = sourceFile;
             m_reader = sourceFile.GetNewReader();
+            m_allowedLanguages = allowedLanguages;
         }
+
+        //---------------------------------------------------------------------
 
         protected void FlushStringBufferIfPossible()
         {
@@ -209,10 +277,10 @@ namespace Kawapure.DuiCompiler.Parser
                         finalString,
                         m_sourceFile,
                         m_stringBufferOrigin,
-                        GetTokenTypeFromMode()
+                        GetTokenTypeFromMode(),
+                        GetAppropriateTokenLanguage()
                     );
-
-                    m_tokenList.Add(tokenFromStringBuffer);
+                    AddTokenToTokenList(tokenFromStringBuffer);
 
                     // Reset the string buffer for the next iteration:
                     m_stringBufferOrigin = 0;
@@ -220,6 +288,8 @@ namespace Kawapure.DuiCompiler.Parser
                 }
             }
         }
+
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Set the current mode of the tokenizer.
@@ -229,6 +299,8 @@ namespace Kawapure.DuiCompiler.Parser
             m_mode = mode;
             m_bModeJustSwitched = true;
         }
+
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Get the appropriate type for the destination token from the current
@@ -256,6 +328,40 @@ namespace Kawapure.DuiCompiler.Parser
                 ),
             };
         }
+
+        /// <summary>
+        /// Adds a token to the <see cref="m_tokenList">token list</see> if it
+        /// is appropriate (the language is supported by the tokenizer session).
+        /// </summary>
+        /// <returns>
+        /// True if the token was added to the list, false if it was rejected.
+        /// </returns>
+        protected bool AddTokenToTokenList(Token token)
+        {
+            if (
+                (token.m_language == Token.TokenLanguage.DUIXML && m_bAllowDuiXml) ||
+                (token.m_language == Token.TokenLanguage.PREPROCESSOR && m_bAllowPreprocessor)
+            )
+            {
+                m_tokenList.Add(token);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the appropriate token language based on the current parsing
+        /// language of the tokenizer.
+        /// </summary>
+        protected Token.TokenLanguage GetAppropriateTokenLanguage()
+        {
+            return m_bTargetingPreprocessor
+                ? Token.TokenLanguage.PREPROCESSOR
+                : Token.TokenLanguage.DUIXML;
+        }
+
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Tokenize the input and send the output.
@@ -318,6 +424,8 @@ namespace Kawapure.DuiCompiler.Parser
             return m_tokenList;
         }
 
+        //---------------------------------------------------------------------
+
         protected ReaderCommand TokenizeSymbolic()
         {
             // We ignore this state, so we just always set it to false:
@@ -340,7 +448,7 @@ namespace Kawapure.DuiCompiler.Parser
                 FlushStringBufferIfPossible();
                 return ReaderCommand.PASS;
             }
-            else if (character != '#')
+            else if (m_bAllowPreprocessor && character != '#')
             {
                 // We don't want to run the above code if the character is a
                 // "#" character because that would break tokenization for
@@ -425,9 +533,10 @@ namespace Kawapure.DuiCompiler.Parser
 
                     // We substract the previously read amount from the cursor:
                     (uint)m_reader.GetCurrentOffset() - 1,
-                    Token.TokenType.SYMBOL
+                    Token.TokenType.SYMBOL,
+                    GetAppropriateTokenLanguage()
                 );
-                m_tokenList.Add(token);
+                AddTokenToTokenList(token);
 
                 // Change the mode:
                 TokenizerMode newMode = GetTokenTargetMode(modeSetToken);
@@ -454,9 +563,10 @@ namespace Kawapure.DuiCompiler.Parser
 
                     // We substract the previously read amount from the cursor:
                     (uint)m_reader.GetCurrentOffset() - 1,
-                    Token.TokenType.SYMBOL
+                    Token.TokenType.SYMBOL,
+                    GetAppropriateTokenLanguage()
                 );
-                m_tokenList.Add(token);
+                AddTokenToTokenList(token);
             }
             else
             {
@@ -561,9 +671,10 @@ namespace Kawapure.DuiCompiler.Parser
                     m_sourceFile,
                     // We substract the previously read amount from the cursor:
                     (uint)m_reader.GetCurrentOffset() - 1,
-                    Token.TokenType.SYMBOL
+                    Token.TokenType.SYMBOL,
+                    GetAppropriateTokenLanguage()
                 );
-                m_tokenList.Add(terminatorToken);
+                AddTokenToTokenList(terminatorToken);
 
                 return ReaderCommand.PASS;
             }

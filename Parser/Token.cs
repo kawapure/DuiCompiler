@@ -8,7 +8,6 @@ namespace Kawapure.DuiCompiler.Parser
 {
     internal class Token
     {
-        [Flags]
         public enum TokenType
         {
             /// <summary>
@@ -25,19 +24,40 @@ namespace Kawapure.DuiCompiler.Parser
             STRING_LITERAL,
         }
 
+        public enum TokenLanguage
+        {
+            /// <summary>
+            /// The token targets the DUIXML parser.
+            /// </summary>
+            DUIXML,
+
+            /// <summary>
+            /// The token targets the preprocessor parser.
+            /// </summary>
+            PREPROCESSOR,
+        }
+
         public string m_string { get; protected set; }
         public readonly SourceOrigin m_sourceOrigin;
         public readonly TokenType m_type;
+        public readonly TokenLanguage m_language;
 
-        public Token(string token, SourceFile sourceFileReader, uint sourceFileOffset, TokenType type = TokenType.SYMBOL)
+        public Token(
+            string token, 
+            ITextReaderSourceProvider sourceProvider, 
+            uint sourceFileOffset, 
+            TokenType type = TokenType.SYMBOL,
+            TokenLanguage language = TokenLanguage.DUIXML
+        )
         {
             m_string = token;
             m_sourceOrigin = new SourceOrigin
             {
-                sourceFileReader = sourceFileReader,
+                sourceProvider = sourceProvider,
                 cursorOffset = sourceFileOffset
             };
             m_type = type;
+            m_language = language;
         }
     }
 }

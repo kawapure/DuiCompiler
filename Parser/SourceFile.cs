@@ -30,7 +30,10 @@ namespace Kawapure.DuiCompiler.Parser
             this.Contents = File.ReadAllText(filePath);
             m_fileType = fileType;
 
-            m_tokenizer = new Tokenizer(this);
+            m_tokenizer = new Tokenizer(
+                this, 
+                Tokenizer.AllowedLanguage.DUIXML | Tokenizer.AllowedLanguage.PREPROCESSOR
+            );
             m_mainTextReader = new TextReader(this);
         }
 
