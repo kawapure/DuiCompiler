@@ -30,10 +30,21 @@ namespace Kawapure.DuiCompiler.Parser
             this.Contents = File.ReadAllText(filePath);
             m_fileType = fileType;
 
-            m_tokenizer = new Tokenizer(
-                this, 
-                Tokenizer.AllowedLanguage.DUIXML | Tokenizer.AllowedLanguage.PREPROCESSOR
-            );
+            Tokenizer.AllowedLanguage tokenizerLanguages = m_fileType switch
+            {
+                // DirectUI input files (.ui, .uix, .xml)
+                FileType.DUI_UIFILE =>
+                    Tokenizer.AllowedLanguage.DUIXML | Tokenizer.AllowedLanguage.PREPROCESSOR,
+
+                // Preprocessor input files (.h, .hpp, .hxx, .c, .cpp, .cxx)
+                FileType.PREPROCESSOR =>
+                    Tokenizer.AllowedLanguage.PREPROCESSOR,
+
+                // Unknown file types should not be tokenized.
+                _ => Tokenizer.AllowedLanguage.NONE
+            };
+
+            m_tokenizer = new Tokenizer(this, tokenizerLanguages);
             m_mainTextReader = new TextReader(this);
         }
 

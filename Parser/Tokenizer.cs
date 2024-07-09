@@ -374,7 +374,10 @@ namespace Kawapure.DuiCompiler.Parser
                 // Read the current character:
                 (TextReader.Status cs, char character) = m_reader.Peek(0);
                 
-                if (character == '\n' && m_lastNonWhitespaceChar != '\\')
+                if (
+                    m_bAllowDuiXml &&
+                    character == '\n' && m_lastNonWhitespaceChar != '\\'
+                )
                 {
                     // New lines are significant for the preprocessor language
                     // and not for XML. We only consider them to terminate
@@ -457,7 +460,7 @@ namespace Kawapure.DuiCompiler.Parser
                 m_lastNonWhitespaceChar = character;
             }
             
-            if (character == '#' && !m_bParsedAnyNonWhitespaceOnLine)
+            if (m_bAllowPreprocessor && character == '#' && !m_bParsedAnyNonWhitespaceOnLine)
             {
                 // "#" begins preprocessor parsing mode if no other characters
                 // precede it.
