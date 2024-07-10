@@ -1,28 +1,69 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <StartupObject>Kawapure.DuiCompiler.DuiCompilerMain</StartupObject>
-    <RootNamespace>Kawapure.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-    <AssemblyName>duic</AssemblyName>
-    <PackageProjectUrl>https://github.com/kawapure/DuiCompiler</PackageProjectUrl>
-    <Copyright>by kawapure</Copyright>
-    <Description>DirectUI UI file compiler</Description>
-    <Company>by kawapure</Company>
-    <Product>DuiCompiler</Product>
-    <AssemblyVersion>1.0</AssemblyVersion>
-    <FileVersion>1.0</FileVersion>
-  </PropertyGroup>
+	<!-- Generate build number and date: -->
+	<PropertyGroup>
+		<MajorVersion>0.1</MajorVersion>
+		<Date>$([System.DateTime]::UtcNow.Date.Ticks)</Date>
+		<CreationDateObj>$([System.DateTime]::new(2024, 7, 1))</CreationDateObj>
+		<CreationDate>$([System.DateTime]::new(2024, 7, 1).Ticks)</CreationDate>
+		<BuildNumber>$([System.Convert]::ToInt32($([System.DateTime]::UtcNow.Subtract($(CreationDateObj)).TotalDays)))</BuildNumber>
+		<BuildNumberSourceFile>
+			<![CDATA[
+// Generated.
+// See the .csproj for the generation script.
 
-  <ItemGroup>
-    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
-  </ItemGroup>
+namespace $(RootNamespace)
+{
+	public static class BuildNumber
+	{
+	    /// <summary>
+		/// The number of ticks that have passed since the file was built.
+		/// </summary>
+		public const long COMPILE_TIME = $(Date)%3B
+		
+		/// <summary>
+		/// The build number.
+		/// </summary>
+		/// <remarks>
+		/// This, like all Network Neighborhood software, is equivalent to the
+		/// number of days that have passed since the application started
+		/// development.
+		/// </remarks>
+		public const int BUILD_NUMBER = $(BuildNumber)%3B
+	}
+}
+]]>
+		</BuildNumberSourceFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Preprocessor\" />
-  </ItemGroup>
+	<Target Name="BuildNumber" BeforeTargets="BeforeBuild">
+		<WriteLinesToFile File="BuildNumber.gen.cs" Lines="$(BuildNumberSourceFile)" Overwrite="true" />
+	</Target>
+
+	<!-- General file properties -->
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<StartupObject>Kawapure.DuiCompiler.DuiCompilerMain</StartupObject>
+		<RootNamespace>Kawapure.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+		<AssemblyName>duic</AssemblyName>
+		<PackageProjectUrl>https://github.com/kawapure/DuiCompiler</PackageProjectUrl>
+		<Copyright>Network Neighborhood</Copyright>
+		<Description>DirectUI UI file compiler</Description>
+		<Company>Network Neighborhood</Company>
+		<Product>DuiCompiler</Product>
+		<AssemblyVersion>$(MajorVersion).$(BuildNumber)</AssemblyVersion>
+		<FileVersion>$(MajorVersion).$(BuildNumber)</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Preprocessor\" />
+	</ItemGroup>
 
 </Project>
