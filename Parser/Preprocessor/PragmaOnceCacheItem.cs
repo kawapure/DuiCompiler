@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace Kawapure.DuiCompiler.Parser.Preprocessor
 {
-    internal class PreprocessorStatement
+    internal class PragmaOnceCacheItem : IIncludeCacheItem
     {
-
+        public bool ShouldSkip()
+        {
+            return true;
+        }
     }
 }

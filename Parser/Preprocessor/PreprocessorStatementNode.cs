@@ -4,17 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Kawapure.DuiCompiler.Parser;
-
 namespace Kawapure.DuiCompiler.Parser.Preprocessor
 {
-    internal class PreprocessorTokenVisitor
+    internal class PreprocessorStatementNode : IParseNode
     {
-        protected List<Token> tokens;
-
-        public PreprocessorTokenVisitor(List<Token> tokens)
+        public string Name
         {
-
+            get => "PreprocessorStatement";
         }
+
+        public List<IParseNode> Children { get; } = new();
     }
 }

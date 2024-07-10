@@ -31,14 +31,20 @@ namespace Kawapure.DuiCompiler
                 return;
             }
 
-            Console.WriteLine("Hello :3");
+            // Since we write the source code to stdout, we want to write other
+            // messages to stderr so they don't aren't intertwined with the
+            // result.
+            if (!Options.s_noLogo)
+            {
+                Console.Error.WriteLine("Hello :3");
+            }
 
             if (Options.s_inputFile != null)
             {
                 Parser.SourceFile fileReader = new(Options.s_inputFile, Parser.SourceFile.FileType.DUI_UIFILE);
                 List<Parser.Token> tokens = fileReader.m_tokenizer.Tokenize();
 
-                Console.WriteLine(tokens.Count);
+                Console.Error.WriteLine(tokens.Count);
 
                 foreach (Parser.Token token in tokens)
                 {

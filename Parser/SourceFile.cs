@@ -19,6 +19,10 @@ namespace Kawapure.DuiCompiler.Parser
 
         public string Contents { get; protected set; }
 
+        public bool IsIncluded { get; protected set; } = false;
+
+        public SourceFile? IncludingFile { get; private set; } = null;
+
         // TODO(izzy):
         // this should probably be refactored at some point
         // tokeniser should not be part of the source file

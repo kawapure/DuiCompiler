@@ -375,7 +375,7 @@ namespace Kawapure.DuiCompiler.Parser
                 (TextReader.Status cs, char character) = m_reader.Peek(0);
                 
                 if (
-                    m_bAllowDuiXml &&
+                    m_bAllowPreprocessor &&
                     character == '\n' && m_lastNonWhitespaceChar != '\\'
                 )
                 {
