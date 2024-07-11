@@ -399,6 +399,7 @@ namespace Kawapure.DuiCompiler.Parser
                         Token.TokenType.SYMBOL,
                         Token.TokenLanguage.PREPROCESSOR
                     );
+                    m_tokenList.Add(newlineToken);
 
                     // FALL THROUGH
                     // We still need a \n token for parsing preprocessor
