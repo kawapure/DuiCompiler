@@ -392,6 +392,14 @@ namespace Kawapure.DuiCompiler.Parser
                     m_lastNonWhitespaceChar = char.MinValue;
                     m_bParsedAnyNonWhitespaceOnLine = false;
 
+                    Token newlineToken = new(
+                        "\n",
+                        m_sourceFile,
+                        (uint)m_reader.GetCurrentOffset() - 1,
+                        Token.TokenType.SYMBOL,
+                        Token.TokenLanguage.PREPROCESSOR
+                    );
+
                     // FALL THROUGH
                     // We still need a \n token for parsing preprocessor
                     // directives.
