@@ -86,6 +86,62 @@ Attribute conditionals control the entire behaviour of the set, so they are the 
       </unless>
       ```
       
+As of the introduction of DUI70 (DirectUI library version 8) in Windows 7, a few more attribute operators are supported, allowing relative comparison:
+- If the condition is followed by a single `<` (less than sign) character, which itself is followed by a value, then the condition will be transformed into an equivalent `iflesser` node parenting the rule:
+    - ```css
+      MyDocumentElement [pageNumber < 2] {}
+      ```
+      will become:
+      ```xml
+      <iflesser pageNumber="2">
+          <MyDocumentElement />
+      </iflesser>
+      ```
+- If the condition is followed by a single `>` (greater than sign) character, which itself is followed by a value, then the condition will be transformed into an equivalent `ifgreater` node parenting the rule:
+    - ```css
+      MyDocumentElement [pageNumber > 1] {}
+      ```
+      will become:
+      ```xml
+      <ifgreater pageNumber="1">
+          <MyDocumentElement />
+      </ifgreater>
+      ```
+- If the condition is followed by a `<=` (less than or equal to) character sequence followed by a value, then the condition will be transformed into an equivalent `iflesserequal` node parenting the rule:
+    - ```css
+        MyDocumentElement [pageNumber <= 0] {}
+        ```
+        will become:
+        ```xml
+        <iflesserequal pageNumber="0">
+            <MyDocumentElement />
+        </iflesserequal>
+        ```
+- If the condition is followed by a `>=` (greater than or equal to) character sequence followed by a value, then the condition will be transformed into an equivalent `ifgreaterequal` node parenting the rule:
+    - ```css
+        MyDocumentElement [pageNumber >= 2] {}
+        ```
+        will become:
+        ```xml
+        <ifgreaterequal pageNumber="2">
+            <MyDocumentElement />
+        </ifgreaterqual>
+        ```
+        
+Here is the simple table of conversions from operators into their equivalent node names:
+
+| **Operator** | **Node**       | Supported since   |
+|--------------|----------------|-------------------|
+| `(none)`     | If             | Windows XP/Vista  |
+| =            | If             | Windows XP/Vista  |
+| !=           | Unless         | Windows XP/Vista  |
+| <            | IfLesser       | Windows 7 (DUI 8) |
+| >            | IfGreater      | Windows 7 (DUI 8) |
+| <=           | IfLesserEqual  | Windows 7 (DUI 8) |
+| >=           | IfGreaterEqual | Windows 7 (DUI 8) |
+
+Please note that all conditional node names are case-insensitive, so you could write `IfGreaterEqual` for readability's sake.
+      
 The element name itself and all style property declarations for the rule are coalesced into a single element, where the tag name is the name of the element, and all attributes are style property declarations.
 - ```css
   MyDocumentElement
