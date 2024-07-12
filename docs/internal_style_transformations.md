@@ -55,7 +55,7 @@ DirectUI CSS syntax allows for, per rule:
 - zero or more property declarations to apply all elements of the selected element name who pass the attribute conditions
 
 Attribute conditionals control the entire behaviour of the set, so they are the most important part. In translation from the CSS-like language to XML nodes, they are promoted to DUIXML `if` or `unless` elements which parent the rule. In particular:
-- If the condition is simply an attribute name (e.g. `[visible]`), then it will be given an explicit true value (equivalent for the example to `[visible=true]`), and will be transformed to an `if` node parenting the rule:
+- If the condition is simply an attribute name (e.g. `[visible]`), then it will be given an explicit true value (equivalent to e.g. `[visible=true]`), and will be transformed to an `if` node parenting the rule:
     - ```css
       element [visible] {}
       ```
@@ -109,24 +109,24 @@ As of the introduction of DUI70 (DirectUI library version 8) in Windows 7, a few
       ```
 - If the condition is followed by a `<=` (less than or equal to) character sequence followed by a value, then the condition will be transformed into an equivalent `iflesserequal` node parenting the rule:
     - ```css
-        MyDocumentElement [pageNumber <= 0] {}
-        ```
-        will become:
-        ```xml
-        <iflesserequal pageNumber="0">
-            <MyDocumentElement />
-        </iflesserequal>
-        ```
+      MyDocumentElement [pageNumber <= 0] {}
+      ```
+      will become:
+      ```xml
+      <iflesserequal pageNumber="0">
+          <MyDocumentElement />
+      </iflesserequal>
+      ```
 - If the condition is followed by a `>=` (greater than or equal to) character sequence followed by a value, then the condition will be transformed into an equivalent `ifgreaterequal` node parenting the rule:
     - ```css
-        MyDocumentElement [pageNumber >= 2] {}
-        ```
-        will become:
-        ```xml
-        <ifgreaterequal pageNumber="2">
-            <MyDocumentElement />
-        </ifgreaterqual>
-        ```
+      MyDocumentElement [pageNumber >= 2] {}
+      ```
+      will become:
+      ```xml
+      <ifgreaterequal pageNumber="2">
+          <MyDocumentElement />
+      </ifgreaterqual>
+      ```
         
 Here is the simple table of conversions from operators into their equivalent node names:
 
