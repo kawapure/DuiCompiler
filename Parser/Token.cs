@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
+#if DEBUG
+using Kawapure.DuiCompiler.Debugging;
+using System.Xml.Linq;
+#endif
 
 namespace Kawapure.DuiCompiler.Parser
 {
     internal class Token
+#if DEBUG
+        : IDebugSerializable
+#endif
     {
         public enum TokenType
         {
@@ -59,5 +69,60 @@ namespace Kawapure.DuiCompiler.Parser
             m_type = type;
             m_language = language;
         }
+
+        public override string ToString()
+        {
+            return m_string;
+        }
+
+        public static explicit operator string(Token token)
+        {
+            return token.ToString();
+        }
+
+#if DEBUG
+        public XElement DebugSerialize()
+        {
+            XElement result = new("Token");
+
+            result.SetAttributeValue("NativeClassName", this.GetType().Name);
+
+            if (m_sourceOrigin.sourceProvider is not SourceFile)
+            {
+                result.SetAttributeValue("AnonymousSource", "true");
+            }
+            else
+            {
+                SourceFile sourceFile = (SourceFile)m_sourceOrigin.sourceProvider;
+
+                result.SetAttributeValue(
+                    "SourceFile",
+                    sourceFile.Path
+                );
+            }
+
+            result.SetAttributeValue(
+                "TokenType",
+                Enum.GetName(typeof(TokenType), m_type)
+            );
+
+            result.SetAttributeValue(
+                "TokenLanguage",
+                Enum.GetName(typeof(TokenLanguage), m_language)
+            );
+
+            if (m_string == "\x00")
+            {
+                result.SetAttributeValue("NullContents", true);
+            }
+            else
+            {
+                XText text = new(m_string);
+                result.Add(text);
+            }
+
+            return result;
+        }
+#endif
     }
 }

@@ -20,6 +20,10 @@ namespace Kawapure.DuiCompiler
 
         public static List<string>? s_extraArgs { get; private set; } = null;
 
+#if DEBUG
+        public static bool s_debugParser = false;
+#endif
+
         public static List<string> s_duiExts { get; private set; } = new() {
             ".dui", // Possible common extension.
             ".ui",  // Microsoft official extension
@@ -61,53 +65,72 @@ namespace Kawapure.DuiCompiler
                     "nologo|nobanner",
                     "Don't display application information at startup.",
                     option =>
-                {
-                    s_noLogo = true;
-                })
+                    {
+                        s_noLogo = true;
+                    }
+                )
                 .Add("in|i=", "The input UI file", option =>
-                {
-                    s_inputFile = option;
-                })
+                    {
+                        s_inputFile = option;
+                    }
+                )
                 .Add("out|o=", "The output UI object (blank for stdout)", option =>
-                {
-                    s_outputFile = option;
-                })
+                    {
+                        s_outputFile = option;
+                    }
+                )
                 .Add(
                     "include-dirs|inc", 
                     "Comma-separated list of include directories to search for preprocessor " +
                     "header files in",
                     option =>
-                {
+                    {
 
-                })
+                    }
+                )
                 .Add("define|def=", "Comma-separated list of preprocessor defines", option =>
-                {
+                    {
 
-                })
+                    }
+                )
                 .Add(
                     "directui-exts|dui-exts=", 
                     "Comma-separated list of file extensions for DirectUI files. " +
                     "By default, this includes .dui, .ui, .uix, and .xml", 
                     option =>
-                {
+                    {
 
-                })
+                    }
+                )
                 .Add(
                     "preprocessor-exts|pp-exts=", 
                     "Comma-separated list of file extensions for the preprocessor. " +
                     "By default, this includes .h, .hpp, .hxx, .c, .cpp, and .cxx",
                     option =>
-                {
+                    {
 
-                })
+                    }
+                )
                 .Add("verbosity|verbose|v=", "Verbosity", option =>
-                {
+                    {
 
-                })
+                    }
+                )
                 .Add("version|ver", "Shows the version of the program", option =>
-                {
+                    {
 
-                })
+                    }
+                )
+#if DEBUG
+                .Add(
+                    "debug-parsing", 
+                    "Print parse elements (tokens and parse nodes) into XML trees.",
+                    option =>
+                    {
+                        s_debugParser = true;
+                    }
+                )
+#endif
                 .Add("help|h|?", "Shows help", option => s_showHelp = true);
         }
 
@@ -116,6 +139,11 @@ namespace Kawapure.DuiCompiler
             Console.WriteLine($"DuiCompiler DirectUI UI file compiler version {DuiCompilerMain.VERSION}");
             Console.WriteLine("by Isabella (kawapure)");
             Console.WriteLine();
+
+#if DEBUG
+            Console.WriteLine("DEBUG BUILD -- Debug commands available.");
+            Console.WriteLine();
+#endif
 
             Console.WriteLine("Basic usage: ");
             Console.WriteLine("    duic [--in <input file name>] [--out <output file name>]");

@@ -17,6 +17,8 @@ namespace Kawapure.DuiCompiler.Parser
         protected FileType m_fileType;
         protected TextReader m_mainTextReader;
 
+        public string Path { get; protected set; }
+
         public string Contents { get; protected set; }
 
         public bool IsIncluded { get; protected set; } = false;
@@ -31,6 +33,7 @@ namespace Kawapure.DuiCompiler.Parser
 
         public SourceFile(string filePath, FileType fileType)
         {
+            this.Path = filePath;
             this.Contents = File.ReadAllText(filePath);
             m_fileType = fileType;
 
@@ -50,6 +53,11 @@ namespace Kawapure.DuiCompiler.Parser
 
             m_tokenizer = new Tokenizer(this, tokenizerLanguages);
             m_mainTextReader = new TextReader(this);
+        }
+
+        public FileType GetFileType()
+        {
+            return m_fileType;
         }
 
         /// <summary>

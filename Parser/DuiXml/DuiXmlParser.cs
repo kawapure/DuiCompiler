@@ -12,6 +12,7 @@ namespace Kawapure.DuiCompiler.Parser.DuiXml
     {
         private readonly ITextReaderSourceProvider m_sourceFile;
         private PreprocessorParser? m_preprocessorParser = null;
+        private WorldNode m_world;
 
         public DuiXmlParser(ITextReaderSourceProvider sourceFile)
         {
@@ -24,6 +25,12 @@ namespace Kawapure.DuiCompiler.Parser.DuiXml
             {
                 m_preprocessorParser = new PreprocessorParser((SourceFile)m_sourceFile);
             }
+
+            m_world = new WorldNode(new SourceOrigin()
+            {
+                sourceProvider = m_sourceFile,
+                cursorOffset = 0,
+            });
         }
 
 

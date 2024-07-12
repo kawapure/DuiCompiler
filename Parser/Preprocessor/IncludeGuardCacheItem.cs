@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Kawapure.DuiCompiler.Parser.Preprocessor
 {
-    internal class IncludeGuardCache : IIncludeCacheItem
+    internal class IncludeGuardCacheItem : IIncludeCacheItem
     {
         // SourceFile is a PLACEHOLDER class!!!!!!!!
         // It should be replaced with the object for a preprocessor define
         // when the time comes for that to be implemented.
         protected WeakReference<SourceFile> m_skipTarget;
 
-        public IncludeGuardCache(SourceFile a)
+        public IncludeGuardCacheItem(SourceFile a)
         {
             m_skipTarget = new(a);
         }

@@ -1,5 +1,12 @@
-﻿using System;
+﻿using Kawapure.DuiCompiler.Parser;
+using System;
 using System.Reflection;
+
+#if DEBUG
+using Kawapure.DuiCompiler.Debugging;
+using System.Xml;
+using System.Xml.Linq;
+#endif
 
 namespace Kawapure.DuiCompiler
 {
@@ -31,7 +38,7 @@ namespace Kawapure.DuiCompiler
                 return;
             }
 
-            // Since we write the source code to stdout, we want to write other
+            // Since we write the resulting code to stdout, we want to write other
             // messages to stderr so they don't aren't intertwined with the
             // result.
             if (!Options.s_noLogo)
@@ -44,12 +51,22 @@ namespace Kawapure.DuiCompiler
                 Parser.SourceFile fileReader = new(Options.s_inputFile, Parser.SourceFile.FileType.DUI_UIFILE);
                 List<Parser.Token> tokens = fileReader.m_tokenizer.Tokenize();
 
+                TokenStream tokenStream = new(tokens);
+
                 Console.Error.WriteLine(tokens.Count);
 
-                foreach (Parser.Token token in tokens)
+#if DEBUG
+                if (Options.s_debugParser)
                 {
-                    Console.WriteLine(token.m_string);
+                    // Print the XML stream to stdout:
+                    Console.Error.WriteLine("Debug XML will be printed to stdout...");
+
+                    XElement debugTree = tokenStream.DebugSerialize();
+                    Console.Out.Write(debugTree.ToString());
+
+                    return;
                 }
+#endif
             }
         }
     }

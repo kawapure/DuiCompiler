@@ -6,13 +6,19 @@ using System.Threading.Tasks;
 
 namespace Kawapure.DuiCompiler.Parser.Preprocessor
 {
-    internal class PreprocessorStatementNode : IParseNode
+    internal class PreprocessorStatementNode : AParseNode
     {
-        public string Name
+        private readonly string m_name = "PreprocessorStatement";
+
+        public override string Name
         {
-            get => "PreprocessorStatement";
+            get => m_name;
+            protected set { }
         }
 
-        public List<IParseNode> Children { get; } = new();
+        public PreprocessorStatementNode(SourceOrigin sourceOrigin)
+            : base(sourceOrigin)
+        {
+        }
     }
 }
