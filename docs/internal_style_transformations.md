@@ -125,7 +125,7 @@ As of the introduction of DUI70 (DirectUI library version 8) in Windows 7, a few
       ```xml
       <ifgreaterequal pageNumber="2">
           <MyDocumentElement />
-      </ifgreaterqual>
+      </ifgreaterequal>
       ```
         
 Here is the simple table of conversions from operators into their equivalent node names:
