@@ -9,17 +9,15 @@ namespace Kawapure.DuiCompiler.Parser
     /// <summary>
     /// The top-level node of the parser environment.
     /// </summary>
-    internal class WorldNode : AParseNode
+    internal class WorldNode : ParseNode
     {
         public override string Name
         {
             get => "World";
-            protected set { }
         }
 
         public WorldNode(SourceOrigin sourceOrigin)
             : base(sourceOrigin)
-        {
-        }
+        {}
     }
 }

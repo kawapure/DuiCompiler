@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 #if DEBUG
 using Kawapure.DuiCompiler.Debugging;
@@ -11,7 +12,7 @@ using System.Xml.Linq;
 
 namespace Kawapure.DuiCompiler.Parser
 {
-    internal struct TokenStream
+    internal class TokenStream
 #if DEBUG
         : IDebugSerializable
 #endif
@@ -29,10 +30,42 @@ namespace Kawapure.DuiCompiler.Parser
             get => tokens[i + this.position];
         }
 
+        public Token Next()
+        {
+            if (tokens.Count > this.position - 1)
+            {
+                SourceOrigin lastSrcOrigin = tokens[this.position - 1].m_sourceOrigin;
+
+                throw new ParseError(
+                    "Unexpected end of file",
+                    lastSrcOrigin
+                );
+            }
+
+            return this[this.position++];
+        }
+
+        public Token Expect(string nextSequence, string? errorMsg = null)
+        {
+            Token token = Next();
+
+            if (token.m_string != nextSequence)
+            {
+                throw new ParseError(
+                    $"Unexpected token \"{token.ToSafeString}\", " +
+                    $"expected \"{Token.ToSafeString(nextSequence)}\"",
+                    token.m_sourceOrigin
+                );
+            }
+
+            return token;
+        }
+
 #if DEBUG
         public XElement DebugSerialize()
         {
             XElement result = new("TokenStream");
+            result.SetAttributeValue("ChildElementCount", this.tokens.Count);
 
             foreach (Token token in this.tokens)
             {

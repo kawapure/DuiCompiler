@@ -451,7 +451,7 @@ namespace Kawapure.DuiCompiler.Parser
             }
 
             bool isCharAscii = (character <= sbyte.MaxValue);
-            bool isCharSimpleToken = (isCharAscii) && !char.IsLetterOrDigit(character);
+            bool isCharSimpleToken = (isCharAscii) && !char.IsLetterOrDigit(character) && character != '_';
 
             if (Char.IsWhiteSpace(character))
             {

@@ -80,6 +80,26 @@ namespace Kawapure.DuiCompiler.Parser
             return token.ToString();
         }
 
+        public string ToSafeString()
+        {
+            return Token.ToSafeString(m_string);
+        }
+
+        public static string ToSafeString(string token)
+        {
+            if (token == "\0")
+            {
+                return "[NUL]";
+            }
+            else if (token == "\n")
+            {
+                return "\\n";
+            }
+            
+            return token;
+        }
+
+
 #if DEBUG
         public XElement DebugSerialize()
         {
@@ -102,6 +122,11 @@ namespace Kawapure.DuiCompiler.Parser
             }
 
             result.SetAttributeValue(
+                "SourceOffset",
+                m_sourceOrigin.cursorOffset
+            );
+
+            result.SetAttributeValue(
                 "TokenType",
                 Enum.GetName(typeof(TokenType), m_type)
             );
@@ -113,7 +138,11 @@ namespace Kawapure.DuiCompiler.Parser
 
             if (m_string == "\x00")
             {
-                result.SetAttributeValue("NullContents", true);
+                result.SetAttributeValue("SpecialValue", "Null");
+            }
+            else if (m_string == "\n")
+            {
+                result.SetAttributeValue("SpecialValue", "NewLine");
             }
             else
             {

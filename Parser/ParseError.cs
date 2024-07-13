@@ -8,20 +8,29 @@ namespace Kawapure.DuiCompiler.Parser
 {
     internal class ParseError : Exception
     {
-        protected SourceOrigin m_sourceOrigin;
+        protected string m_message;
+        protected ITextReaderSourceProvider? m_sourceProvider;
+        protected SourceOrigin? m_sourceOrigin;
 
-        public ParseError(SourceOrigin sourceOrigin)
+        public ParseError(string msg, ITextReaderSourceProvider sourceProvider)
         {
+            m_message = msg;
+            m_sourceProvider = sourceProvider;
+        }
+
+        public ParseError(string msg, SourceOrigin sourceOrigin)
+        {
+            m_message = msg;
             m_sourceOrigin = sourceOrigin;
         }
 
-        public ParseError(Token token)
-            : this(token.m_sourceOrigin)
+        public ParseError(string msg, Token token)
+            : this(msg, token.m_sourceOrigin)
         {
         }
 
-        public ParseError(AParseNode parseNode)
-            : this(parseNode.SourceOrigin)
+        public ParseError(string msg, ParseNode parseNode)
+            : this(msg, parseNode.SourceOrigin)
         {
         }
     }

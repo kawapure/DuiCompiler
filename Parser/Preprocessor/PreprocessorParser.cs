@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Kawapure.DuiCompiler.Parser.Preprocessor.Node;
+
 namespace Kawapure.DuiCompiler.Parser.Preprocessor
 {
     /// <summary>
@@ -26,11 +28,12 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
             FAIL,
         }
 
-        protected record struct InternalParseResult(EInternalParseStatus status, AParseNode? node);
+        protected record struct InternalParseResult(EInternalParseStatus status, ParseNode? node);
 
         protected readonly IncludeCache m_pragmaOnceStore;
         protected readonly ITextReaderSourceProvider m_sourceFile;
         protected WorldNode m_world;
+        protected ParseNode m_currentParent;
 
         public PreprocessorParser(ITextReaderSourceProvider sourceFile)
         {
@@ -41,12 +44,13 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
                 sourceProvider = sourceFile,
                 cursorOffset = 0,
             });
+            m_currentParent = m_world;
         }
 
-        public AParseNode? ParseTokenSequence(List<Token> tokens)
+        public ParseNode? ParseTokenSequence(List<Token> tokens)
             => ParseTokenSequence(new TokenStream(tokens));
 
-        public AParseNode? ParseTokenSequence(TokenStream tokens)
+        public ParseNode? ParseTokenSequence(TokenStream tokens)
         {
             Debug.Assert(tokens[0].m_language == Token.TokenLanguage.PREPROCESSOR);
 
@@ -54,7 +58,12 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
             // opening character, so we enforce this here:
             if (tokens[0].ToString() != "#")
             {
-                throw new ParseError(tokens[0].m_sourceOrigin);
+                throw new ParseError(
+                    $"Invalid preprocessor beginning token \"{tokens[0].ToSafeString()}\". " +
+                    $"Please review the input in a debug build as this is almost certainly a" +
+                    $"compiler error.",
+                    tokens[0].m_sourceOrigin
+                );
             }
 
             KeywordState state = QueryKeywordState(tokens[1]);
@@ -76,7 +85,11 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
             {
                 if (IsParsingInDuiXmlFile())
                 {
-                    throw new ParseError(tokens[1].m_sourceOrigin);
+                    throw new ParseError(
+                        $"Unsupported preprocessor command \"{tokens[1].ToSafeString()}\" " +
+                        $"in DUIXML file",
+                        tokens[1].m_sourceOrigin
+                    );
                 }
             }
 
@@ -152,7 +165,23 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
 
         protected InternalParseResult ParseIfDef(TokenStream tokenStream)
         {
-            return new InternalParseResult(EInternalParseStatus.SUCCESS, null);
+            Token initialToken = tokenStream[0];
+
+            Debug.Assert(initialToken.ToString().ToLower() == "ifdef");
+
+            Token nameToken = tokenStream.Next();
+
+            IfNode ifNode = new(initialToken.m_sourceOrigin);
+
+            ParseNode definedCheck = new("DefinedCheck", nameToken.m_sourceOrigin);
+            definedCheck.SetAttribute("Name", nameToken.ToSafeString());
+
+            ifNode.Expression.AppendChild(definedCheck);
+
+            return new InternalParseResult(
+                EInternalParseStatus.SUCCESS,
+                ifNode
+            );
         }
 
         protected InternalParseResult ParseIfNDef(TokenStream tokenStream)
