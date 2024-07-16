@@ -20,6 +20,10 @@ namespace Kawapure.DuiCompiler.Parser
             m_source = source;
         }
 
+        /// <summary>
+        /// Gets an array of all byte offsets of new line characters in the
+        /// source text.
+        /// </summary>
         public int[] GetLineOffsets()
         {
             /*

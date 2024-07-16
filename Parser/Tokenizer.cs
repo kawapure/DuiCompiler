@@ -218,6 +218,10 @@ namespace Kawapure.DuiCompiler.Parser
         /// <summary>
         /// A buffer used for processing tokens longer than one character.
         /// </summary>
+        /// <remarks>
+        /// This is used for parsing language keywords, user-defined symbols,
+        /// numbers, string literals, and anything of the sort.
+        /// </remarks>
         protected StringBuilder m_stringBuffer = new();
 
         /// <summary>
@@ -249,8 +253,24 @@ namespace Kawapure.DuiCompiler.Parser
 
         //---------------------------------------------------------------------
 
+        /// <summary>
+        /// 
+        /// Stores the opening quote character. This is used by
+        /// <see cref="TokenizeString"/> to know when to terminate parsing.
+        /// 
+        /// </summary>
         protected char m_openingQuoteChar = char.MinValue;
+
+        /// <summary>
+        /// Used by the string parser to remember if the next character should
+        /// be escaped.
+        /// </summary>
         protected bool m_bParsingEscapeSequence = false;
+
+        /// <summary>
+        /// Stores the opening comment token to determine the relevant
+        /// terminator token sequence.
+        /// </summary>
         protected string m_openingCommentToken = string.Empty;
 
         //---------------------------------------------------------------------
@@ -264,6 +284,9 @@ namespace Kawapure.DuiCompiler.Parser
 
         //---------------------------------------------------------------------
 
+        /// <summary>
+        /// Flushes the string buffer if there is any content in it.
+        /// </summary>
         protected void FlushStringBufferIfPossible()
         {
             if (m_stringBuffer.Length > 0)
@@ -438,6 +461,9 @@ namespace Kawapure.DuiCompiler.Parser
 
         //---------------------------------------------------------------------
 
+        /// <summary>
+        /// Tokenizes symbolic source-code content.
+        /// </summary>
         protected ReaderCommand TokenizeSymbolic()
         {
             // We ignore this state, so we just always set it to false:
@@ -595,6 +621,9 @@ namespace Kawapure.DuiCompiler.Parser
             return ReaderCommand.PASS;
         }
 
+        /// <summary>
+        /// Tokenizes string literals. 
+        /// </summary>
         protected ReaderCommand TokenizeString()
         {
             (TextReader.Status trStatus, char character) = m_reader.Read();
@@ -704,6 +733,9 @@ namespace Kawapure.DuiCompiler.Parser
             return ReaderCommand.PASS;
         }
 
+        /// <summary>
+        /// Skips over comments.
+        /// </summary>
         protected ReaderCommand TokenizeComment()
         {
             // We ignore this state, so we just always set it to false:
