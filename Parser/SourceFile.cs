@@ -16,6 +16,7 @@ namespace Kawapure.DuiCompiler.Parser
 
         protected FileType m_fileType;
         protected TextReader m_mainTextReader;
+        protected LineOffsetManager m_lineOffsetManager;
 
         public string Path { get; protected set; }
 
@@ -53,7 +54,10 @@ namespace Kawapure.DuiCompiler.Parser
 
             m_tokenizer = new Tokenizer(this, tokenizerLanguages);
             m_mainTextReader = new TextReader(this);
+            m_lineOffsetManager = new(this.Contents);
         }
+
+        public int[] GetLineOffsets() => m_lineOffsetManager.GetLineOffsets();
 
         public FileType GetFileType()
         {

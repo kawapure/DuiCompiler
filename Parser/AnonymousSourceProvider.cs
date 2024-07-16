@@ -10,9 +10,12 @@ namespace Kawapure.DuiCompiler.Parser
     {
         public string Contents { get; protected set; }
 
+        protected LineOffsetManager m_lineOffsetManager;
+
         public AnonymousSourceProvider(string contents)
         {
             this.Contents = contents;
+            m_lineOffsetManager = new(this.Contents);
         }
 
         /// <summary>
@@ -24,5 +27,7 @@ namespace Kawapure.DuiCompiler.Parser
         {
             return new TextReader(this, defaultOffset);
         }
+
+        public int[] GetLineOffsets() => m_lineOffsetManager.GetLineOffsets();
     }
 }

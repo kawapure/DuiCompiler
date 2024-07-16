@@ -127,6 +127,11 @@ namespace Kawapure.DuiCompiler.Parser
             );
 
             result.SetAttributeValue(
+                "SourceLineColumn",
+                m_sourceOrigin.GetLine() + ":" + m_sourceOrigin.GetLineColumn()
+            );
+
+            result.SetAttributeValue(
                 "TokenType",
                 Enum.GetName(typeof(TokenType), m_type)
             );

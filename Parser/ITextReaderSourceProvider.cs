@@ -10,5 +10,6 @@ namespace Kawapure.DuiCompiler.Parser
     {
         public string Contents { get; }
         public TextReader GetNewReader(int defaultOffset = 0);
+        public int[] GetLineOffsets();
     }
 }

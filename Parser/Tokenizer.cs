@@ -587,7 +587,9 @@ namespace Kawapure.DuiCompiler.Parser
                 // single token, so we add it to the string buffer and
                 // flush it later:
                 m_stringBuffer.Append(character.ToString());
-                m_stringBufferOrigin = (uint)m_reader.GetCurrentOffset() - 1;
+
+                if (m_stringBufferOrigin == 0)
+                    m_stringBufferOrigin = (uint)m_reader.GetCurrentOffset() - 1;
             }
 
             return ReaderCommand.PASS;
@@ -603,6 +605,10 @@ namespace Kawapure.DuiCompiler.Parser
                 // last quote character to we can remember which terminator
                 // to use for subsequent iterations.
                 m_openingQuoteChar = character;
+
+                // We also want to set the string buffer origin so we can trace
+                // the source of the string.
+                m_stringBufferOrigin = (uint)m_reader.GetCurrentOffset() - 1;
 
                 Debug.Assert(character == '\"' || character == '\'' || character == '<');
                 Debug.Assert(m_stringBuffer.Length == 0);
