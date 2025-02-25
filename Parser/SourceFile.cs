@@ -19,23 +19,23 @@ namespace Kawapure.DuiCompiler.Parser
             /// <summary>
             /// The file is a DirectUI DUIXML file.
             /// </summary>
-            DUI_UIFILE,
+            DuiUiFile,
 
             /// <summary>
             /// The file is a C or C++ header file.
             /// </summary>
-            PREPROCESSOR,
+            Preprocessor,
         }
 
         /// <summary>
         /// The type of this source file.
         /// </summary>
-        protected FileType m_fileType;
+        protected FileType _fileType;
 
         /// <summary>
         /// Manages retrieval of line/column offsets from this file.
         /// </summary>
-        protected LineOffsetManager m_lineOffsetManager;
+        protected LineOffsetManager _lineOffsetManager;
 
         /// <summary>
         /// Stores the (currently relative) path of the file.
@@ -50,7 +50,7 @@ namespace Kawapure.DuiCompiler.Parser
 
         public string Contents { get; protected set; }
 
-        public int[] GetLineOffsets() => m_lineOffsetManager.GetLineOffsets();
+        public int[] GetLineOffsets() => _lineOffsetManager.GetLineOffsets();
 
         //---------------------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ namespace Kawapure.DuiCompiler.Parser
         // this should probably be refactored at some point
         // tokeniser should not be part of the source file
         // itself
-        public Tokenizer m_tokenizer { get; protected set; }
+        public Tokenizer _tokenizer { get; protected set; }
 
         //---------------------------------------------------------------------------------------------------
 
@@ -77,24 +77,24 @@ namespace Kawapure.DuiCompiler.Parser
         {
             this.Path = filePath;
             this.Contents = File.ReadAllText(filePath);
-            m_fileType = fileType;
+            _fileType = fileType;
 
-            Tokenizer.AllowedLanguage tokenizerLanguages = m_fileType switch
+            Tokenizer.AllowedLanguage tokenizerLanguages = _fileType switch
             {
                 // DirectUI input files (.ui, .uix, .xml)
-                FileType.DUI_UIFILE =>
-                    Tokenizer.AllowedLanguage.DUIXML | Tokenizer.AllowedLanguage.PREPROCESSOR,
+                FileType.DuiUiFile =>
+                    Tokenizer.AllowedLanguage.DuiXml | Tokenizer.AllowedLanguage.Preprocessor,
 
                 // Preprocessor input files (.h, .hpp, .hxx, .c, .cpp, .cxx)
-                FileType.PREPROCESSOR =>
-                    Tokenizer.AllowedLanguage.PREPROCESSOR,
+                FileType.Preprocessor =>
+                    Tokenizer.AllowedLanguage.Preprocessor,
 
                 // Unknown file types should not be tokenized.
-                _ => Tokenizer.AllowedLanguage.NONE
+                _ => Tokenizer.AllowedLanguage.None
             };
 
-            m_tokenizer = new Tokenizer(this, tokenizerLanguages);
-            m_lineOffsetManager = new(this.Contents);
+            _tokenizer = new Tokenizer(this, tokenizerLanguages);
+            _lineOffsetManager = new(this.Contents);
         }
 
         //---------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         public FileType GetFileType()
         {
-            return m_fileType;
+            return _fileType;
         }
 
         /// <summary>

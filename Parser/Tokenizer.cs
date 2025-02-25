@@ -49,9 +49,9 @@ namespace Kawapure.DuiCompiler.Parser
         [Flags]
         public enum AllowedLanguage
         {
-            NONE         = 0b0000,
-            DUIXML       = 0b0001,
-            PREPROCESSOR = 0b0010,
+            None         = 0b0000,
+            DuiXml       = 0b0001,
+            Preprocessor = 0b0010,
         }
 
         /// <summary>
@@ -68,18 +68,18 @@ namespace Kawapure.DuiCompiler.Parser
             /// Break up textual data into symbolic tokens for parsing source
             /// code.
             /// </summary>
-            PARSING_SYMBOL,
+            ParsingSymbol,
 
             /// <summary>
             /// Interpret all textual data until a given terminator as an
             /// embedded string format; copy textual data mostly as-is.
             /// </summary>
-            PARSING_STRING,
+            ParsingString,
 
             /// <summary>
             /// Ignore all textual data until a given terminator.
             /// </summary>
-            PARSING_COMMENT,
+            ParsingComment,
         }
 
         /// <summary>
@@ -90,8 +90,8 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         protected enum ReaderCommand
         {
-            PASS,
-            BREAK,
+            Pass,
+            Break,
         }
 
         //---------------------------------------------------------------------
@@ -100,22 +100,22 @@ namespace Kawapure.DuiCompiler.Parser
         {
             return token switch
             {
-                "\"" => TokenizerMode.PARSING_STRING,
-                "\'" => TokenizerMode.PARSING_STRING,
-                "//" => TokenizerMode.PARSING_COMMENT,
+                "\"" => TokenizerMode.ParsingString,
+                "\'" => TokenizerMode.ParsingString,
+                "//" => TokenizerMode.ParsingComment,
 
                 // "<" opens a type of quoted string literal for the
                 // preprocessor, but should be parsed as symbolic when we're
                 // targeting DUIXML.
-                "<" => m_bTargetingPreprocessor
-                    ? TokenizerMode.PARSING_STRING
-                    : TokenizerMode.PARSING_SYMBOL,
+                "<" => _fTargetingPreprocessor
+                    ? TokenizerMode.ParsingString
+                    : TokenizerMode.ParsingSymbol,
 
                 // "*/" doesn't mean anything outside of a comment starting
                 // with "/*"
-                "/*" => TokenizerMode.PARSING_COMMENT,
+                "/*" => TokenizerMode.ParsingComment,
 
-                _ => TokenizerMode.PARSING_SYMBOL,
+                _ => TokenizerMode.ParsingSymbol,
             };
         }
 
@@ -124,23 +124,23 @@ namespace Kawapure.DuiCompiler.Parser
         /// <summary>
         /// The list of tokens to output.
         /// </summary>
-        protected List<Token> m_tokenList = new();
+        protected List<Token> _tokenList = new();
 
         //---------------------------------------------------------------------
 
         /// <summary>
         /// The source file we're reading from.
         /// </summary>
-        protected ITextReaderSourceProvider m_sourceFile;
+        protected ITextReaderSourceProvider _sourceFile;
 
         /// <summary>
         /// The main text reader object to use.
         /// </summary>
-        protected TextReader m_reader;
+        protected TextReader _reader;
 
         //---------------------------------------------------------------------
 
-        protected AllowedLanguage m_allowedLanguages = AllowedLanguage.NONE;
+        protected AllowedLanguage _allowedLanguages = AllowedLanguage.None;
 
         /// <summary>
         /// Allow the tokenizer to produce DUI XML tokens.
@@ -149,22 +149,22 @@ namespace Kawapure.DuiCompiler.Parser
         /// DUI XML shouldn't be tokenized when we're targeting C header files,
         /// so we will set this flag when that's the case.
         /// </remarks>
-        protected bool m_bAllowDuiXml
+        protected bool _fAllowDuiXml
         {
             get
             {
-                return (m_allowedLanguages & AllowedLanguage.DUIXML) != AllowedLanguage.NONE;
+                return (_allowedLanguages & AllowedLanguage.DuiXml) != AllowedLanguage.None;
             }
 
             set
             {
                 if (value == true)
                 {
-                    m_allowedLanguages |= AllowedLanguage.DUIXML;
+                    _allowedLanguages |= AllowedLanguage.DuiXml;
                 }
                 else
                 {
-                    m_allowedLanguages &= ~AllowedLanguage.DUIXML;
+                    _allowedLanguages &= ~AllowedLanguage.DuiXml;
                 }
             }
         }
@@ -177,22 +177,22 @@ namespace Kawapure.DuiCompiler.Parser
         /// strings in DUIXML files. Preprocessor tokens should never occur
         /// in such a situation.
         /// </remarks>
-        protected bool m_bAllowPreprocessor
+        protected bool _fAllowPreprocessor
         {
             get
             {
-                return (m_allowedLanguages & AllowedLanguage.PREPROCESSOR) != AllowedLanguage.NONE;
+                return (_allowedLanguages & AllowedLanguage.Preprocessor) != AllowedLanguage.None;
             }
 
             set
             {
                 if (value == true)
                 {
-                    m_allowedLanguages |= AllowedLanguage.PREPROCESSOR;
+                    _allowedLanguages |= AllowedLanguage.Preprocessor;
                 }
                 else
                 {
-                    m_allowedLanguages &= ~AllowedLanguage.PREPROCESSOR;
+                    _allowedLanguages &= ~AllowedLanguage.Preprocessor;
                 }
             }
         }
@@ -202,7 +202,7 @@ namespace Kawapure.DuiCompiler.Parser
         /// <summary>
         /// The current mode of the parser. See <see cref="TokenizerMode"/>.
         /// </summary>
-        protected TokenizerMode m_mode = TokenizerMode.PARSING_SYMBOL;
+        protected TokenizerMode _mode = TokenizerMode.ParsingSymbol;
 
         /// <summary>
         /// Was the mode just switched?
@@ -211,7 +211,7 @@ namespace Kawapure.DuiCompiler.Parser
         /// This is used by some mode functions in order to perform setup
         /// tasks.
         /// </remarks>
-        protected bool m_bModeJustSwitched = false;
+        protected bool _fModeJustSwitched = false;
 
         //---------------------------------------------------------------------
 
@@ -222,12 +222,12 @@ namespace Kawapure.DuiCompiler.Parser
         /// This is used for parsing language keywords, user-defined symbols,
         /// numbers, string literals, and anything of the sort.
         /// </remarks>
-        protected StringBuilder m_stringBuffer = new();
+        protected StringBuilder _stringBuffer = new();
 
         /// <summary>
-        /// The file index at which <see cref="m_stringBuffer"/> begins.
+        /// The file index at which <see cref="_stringBuffer"/> begins.
         /// </summary>
-        protected uint m_stringBufferOrigin = 0;
+        protected uint _stringBufferOrigin = 0;
 
         //---------------------------------------------------------------------
 
@@ -235,12 +235,12 @@ namespace Kawapure.DuiCompiler.Parser
         /// True if the target is the preprocessor language, false if the
         /// target is DUIXML.
         /// </summary>
-        protected bool m_bTargetingPreprocessor = false;
+        protected bool _fTargetingPreprocessor = false;
 
         /// <summary>
         /// Did we parse any whitespace characters on the current line?
         /// </summary>
-        protected bool m_bParsedAnyNonWhitespaceOnLine = false;
+        protected bool _fParsedAnyNonWhitespaceOnLine = false;
 
         /// <summary>
         /// Stores the last non-whitespace character read.
@@ -249,7 +249,7 @@ namespace Kawapure.DuiCompiler.Parser
         /// This is used for checking if the the preprocessor should continue
         /// the logical line past a line break, i.e. "\" at the end of a line.
         /// </remarks>
-        protected char m_lastNonWhitespaceChar = char.MinValue;
+        protected char _lastNonWhitespaceChar = char.MinValue;
 
         //---------------------------------------------------------------------
 
@@ -259,27 +259,27 @@ namespace Kawapure.DuiCompiler.Parser
         /// <see cref="TokenizeString"/> to know when to terminate parsing.
         /// 
         /// </summary>
-        protected char m_openingQuoteChar = char.MinValue;
+        protected char _openingQuoteChar = char.MinValue;
 
         /// <summary>
         /// Used by the string parser to remember if the next character should
         /// be escaped.
         /// </summary>
-        protected bool m_bParsingEscapeSequence = false;
+        protected bool _fParsingEscapeSequence = false;
 
         /// <summary>
         /// Stores the opening comment token to determine the relevant
         /// terminator token sequence.
         /// </summary>
-        protected string m_openingCommentToken = string.Empty;
+        protected string _openingCommentToken = string.Empty;
 
         //---------------------------------------------------------------------
 
         public Tokenizer(ITextReaderSourceProvider sourceFile, AllowedLanguage allowedLanguages)
         {
-            m_sourceFile = sourceFile;
-            m_reader = sourceFile.GetNewReader();
-            m_allowedLanguages = allowedLanguages;
+            _sourceFile = sourceFile;
+            _reader = sourceFile.GetNewReader();
+            _allowedLanguages = allowedLanguages;
         }
 
         //---------------------------------------------------------------------
@@ -289,25 +289,25 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         protected void FlushStringBufferIfPossible()
         {
-            if (m_stringBuffer.Length > 0)
+            if (_stringBuffer.Length > 0)
             {
-                string? finalString = m_stringBuffer.ToString();
+                string? finalString = _stringBuffer.ToString();
 
                 if (finalString != null)
                 {
                     // Flush the string buffer to a new token.
                     Token tokenFromStringBuffer = new(
                         finalString,
-                        m_sourceFile,
-                        m_stringBufferOrigin,
+                        _sourceFile,
+                        _stringBufferOrigin,
                         GetTokenTypeFromMode(),
                         GetAppropriateTokenLanguage()
                     );
                     AddTokenToTokenList(tokenFromStringBuffer);
 
                     // Reset the string buffer for the next iteration:
-                    m_stringBufferOrigin = 0;
-                    m_stringBuffer.Clear();
+                    _stringBufferOrigin = 0;
+                    _stringBuffer.Clear();
                 }
             }
         }
@@ -319,8 +319,8 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         protected void SetMode(TokenizerMode mode)
         {
-            m_mode = mode;
-            m_bModeJustSwitched = true;
+            _mode = mode;
+            _fModeJustSwitched = true;
         }
 
         //---------------------------------------------------------------------
@@ -331,15 +331,15 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         protected Token.TokenType GetTokenTypeFromMode()
         {
-            return m_mode switch
+            return _mode switch
             {
-                TokenizerMode.PARSING_SYMBOL =>
-                    Token.TokenType.SYMBOL,
+                TokenizerMode.ParsingSymbol =>
+                    Token.TokenType.Symbol,
 
-                TokenizerMode.PARSING_STRING =>
-                    Token.TokenType.STRING_LITERAL,
+                TokenizerMode.ParsingString =>
+                    Token.TokenType.StringLiteral,
 
-                TokenizerMode.PARSING_COMMENT => throw new Exception(
+                TokenizerMode.ParsingComment => throw new Exception(
                     "Attempted to call GetTokenTypeFromMode() in the comment " +
                     "tokenizer mode. Did you try flushing after the mode " +
                     "changed, or did you forget to change the mode itself?"
@@ -353,7 +353,7 @@ namespace Kawapure.DuiCompiler.Parser
         }
 
         /// <summary>
-        /// Adds a token to the <see cref="m_tokenList">token list</see> if it
+        /// Adds a token to the <see cref="_tokenList">token list</see> if it
         /// is appropriate (the language is supported by the tokenizer session).
         /// </summary>
         /// <returns>
@@ -362,11 +362,11 @@ namespace Kawapure.DuiCompiler.Parser
         protected bool AddTokenToTokenList(Token token)
         {
             if (
-                (token.m_language == Token.TokenLanguage.DUIXML && m_bAllowDuiXml) ||
-                (token.m_language == Token.TokenLanguage.PREPROCESSOR && m_bAllowPreprocessor)
+                (token._language == Token.TokenLanguage.DuiXml && _fAllowDuiXml) ||
+                (token._language == Token.TokenLanguage.Preprocessor && _fAllowPreprocessor)
             )
             {
-                m_tokenList.Add(token);
+                _tokenList.Add(token);
                 return true;
             }
 
@@ -379,9 +379,9 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         protected Token.TokenLanguage GetAppropriateTokenLanguage()
         {
-            return m_bTargetingPreprocessor
-                ? Token.TokenLanguage.PREPROCESSOR
-                : Token.TokenLanguage.DUIXML;
+            return _fTargetingPreprocessor
+                ? Token.TokenLanguage.Preprocessor
+                : Token.TokenLanguage.DuiXml;
         }
 
         //---------------------------------------------------------------------
@@ -395,11 +395,11 @@ namespace Kawapure.DuiCompiler.Parser
             while (true)
             {
                 // Read the current character:
-                (TextReader.Status cs, char character) = m_reader.Peek(0);
+                (TextReader.Status cs, char character) = _reader.Peek(0);
                 
                 if (
-                    m_bAllowPreprocessor &&
-                    character == '\n' && m_lastNonWhitespaceChar != '\\'
+                    _fAllowPreprocessor &&
+                    character == '\n' && _lastNonWhitespaceChar != '\\'
                 )
                 {
                     // New lines are significant for the preprocessor language
@@ -411,33 +411,33 @@ namespace Kawapure.DuiCompiler.Parser
                     // continue the next line as though there were no line
                     // break at all, so we skip this operation.
 
-                    m_bTargetingPreprocessor = false;
-                    m_lastNonWhitespaceChar = char.MinValue;
-                    m_bParsedAnyNonWhitespaceOnLine = false;
+                    _fTargetingPreprocessor = false;
+                    _lastNonWhitespaceChar = char.MinValue;
+                    _fParsedAnyNonWhitespaceOnLine = false;
 
                     Token newlineToken = new(
                         "\n",
-                        m_sourceFile,
-                        (uint)m_reader.GetCurrentOffset() - 1,
-                        Token.TokenType.SYMBOL,
-                        Token.TokenLanguage.PREPROCESSOR
+                        _sourceFile,
+                        (uint)_reader.GetCurrentOffset() - 1,
+                        Token.TokenType.Symbol,
+                        Token.TokenLanguage.Preprocessor
                     );
-                    m_tokenList.Add(newlineToken);
+                    _tokenList.Add(newlineToken);
 
                     // FALL THROUGH
                     // We still need a \n token for parsing preprocessor
                     // directives.
                 }
 
-                ReaderCommand rc = m_mode switch
+                ReaderCommand rc = _mode switch
                 {
-                    TokenizerMode.PARSING_SYMBOL =>
+                    TokenizerMode.ParsingSymbol =>
                         TokenizeSymbolic(),
 
-                    TokenizerMode.PARSING_STRING =>
+                    TokenizerMode.ParsingString =>
                         TokenizeString(),
 
-                    TokenizerMode.PARSING_COMMENT =>
+                    TokenizerMode.ParsingComment =>
                         TokenizeComment(),
 
                     // This should never be possible.
@@ -446,7 +446,7 @@ namespace Kawapure.DuiCompiler.Parser
                     )
                 };
 
-                if (rc == ReaderCommand.BREAK)
+                if (rc == ReaderCommand.Break)
                 {
                     break;
                 }
@@ -456,7 +456,7 @@ namespace Kawapure.DuiCompiler.Parser
             // file may end on a non-special-character token:
             FlushStringBufferIfPossible();
 
-            return m_tokenList;
+            return _tokenList;
         }
 
         //---------------------------------------------------------------------
@@ -467,13 +467,13 @@ namespace Kawapure.DuiCompiler.Parser
         protected ReaderCommand TokenizeSymbolic()
         {
             // We ignore this state, so we just always set it to false:
-            m_bModeJustSwitched = false;
+            _fModeJustSwitched = false;
 
-            (TextReader.Status trStatus, char character) = m_reader.Read();
+            (TextReader.Status trStatus, char character) = _reader.Read();
 
-            if (trStatus == TextReader.Status.OUT_OF_BOUNDS)
+            if (trStatus == TextReader.Status.OutOfBounds)
             {
-                return ReaderCommand.BREAK;
+                return ReaderCommand.Break;
             }
 
             bool isCharAscii = (character <= sbyte.MaxValue);
@@ -484,22 +484,22 @@ namespace Kawapure.DuiCompiler.Parser
                 // White space isn't stored as a token object. It is simply
                 // interpreted by the tokenizer as a terminator.
                 FlushStringBufferIfPossible();
-                return ReaderCommand.PASS;
+                return ReaderCommand.Pass;
             }
-            else if (m_bAllowPreprocessor && character != '#')
+            else if (_fAllowPreprocessor && character != '#')
             {
                 // We don't want to run the above code if the character is a
                 // "#" character because that would break tokenization for
                 // the preprocessor.
-                m_bParsedAnyNonWhitespaceOnLine = true;
-                m_lastNonWhitespaceChar = character;
+                _fParsedAnyNonWhitespaceOnLine = true;
+                _lastNonWhitespaceChar = character;
             }
             
-            if (m_bAllowPreprocessor && character == '#' && !m_bParsedAnyNonWhitespaceOnLine)
+            if (_fAllowPreprocessor && character == '#' && !_fParsedAnyNonWhitespaceOnLine)
             {
                 // "#" begins preprocessor parsing mode if no other characters
                 // precede it.
-                m_bTargetingPreprocessor = true;
+                _fTargetingPreprocessor = true;
 
                 // We FALL THROUGH here. After all, this state only changes
                 // how the tokenizer behaves, not how the parser interprets
@@ -514,9 +514,9 @@ namespace Kawapure.DuiCompiler.Parser
             if (character == '/')
             {
                 // By default, we don't really want to go through 
-                (TextReader.Status lookaheadStatus, char nextChar) = m_reader.Peek(0);
+                (TextReader.Status lookaheadStatus, char nextChar) = _reader.Peek(0);
 
-                if (lookaheadStatus == TextReader.Status.SUCCESS)
+                if (lookaheadStatus == TextReader.Status.Success)
                 {
                     forwardSlashNextCharacter = nextChar;
                 }
@@ -532,7 +532,7 @@ namespace Kawapure.DuiCompiler.Parser
                         forwardSlashNextCharacter == '/' ||
                         forwardSlashNextCharacter == '*'
                     ) ||
-                (m_bTargetingPreprocessor && character == '<')
+                (_fTargetingPreprocessor && character == '<')
             )
             {
                 // For quote characters, these are only one character long,
@@ -567,26 +567,26 @@ namespace Kawapure.DuiCompiler.Parser
                 // token.
                 Token token = new(
                     character.ToString(),
-                    m_sourceFile,
+                    _sourceFile,
 
                     // We substract the previously read amount from the cursor:
-                    (uint)m_reader.GetCurrentOffset() - 1,
-                    Token.TokenType.SYMBOL,
+                    (uint)_reader.GetCurrentOffset() - 1,
+                    Token.TokenType.Symbol,
                     GetAppropriateTokenLanguage()
                 );
                 AddTokenToTokenList(token);
 
                 // Change the mode:
                 TokenizerMode newMode = GetTokenTargetMode(modeSetToken);
-                Debug.Assert(newMode != TokenizerMode.PARSING_SYMBOL);
+                Debug.Assert(newMode != TokenizerMode.ParsingSymbol);
                 SetMode(newMode);
 
                 // Rewind so that the tokenizer mode begins at the token
                 // (this is used for setting the quote character and for
                 // validating the comment opening sequence):
-                m_reader.Rewind(rewindAmount);
+                _reader.Rewind(rewindAmount);
 
-                return ReaderCommand.PASS;
+                return ReaderCommand.Pass;
             }
 
             if (isCharSimpleToken)
@@ -597,11 +597,11 @@ namespace Kawapure.DuiCompiler.Parser
 
                 Token token = new(
                     character.ToString(),
-                    m_sourceFile,
+                    _sourceFile,
 
                     // We substract the previously read amount from the cursor:
-                    (uint)m_reader.GetCurrentOffset() - 1,
-                    Token.TokenType.SYMBOL,
+                    (uint)_reader.GetCurrentOffset() - 1,
+                    Token.TokenType.Symbol,
                     GetAppropriateTokenLanguage()
                 );
                 AddTokenToTokenList(token);
@@ -612,13 +612,13 @@ namespace Kawapure.DuiCompiler.Parser
                 // string, but we want to consider the whole string as a
                 // single token, so we add it to the string buffer and
                 // flush it later:
-                m_stringBuffer.Append(character.ToString());
+                _stringBuffer.Append(character.ToString());
 
-                if (m_stringBufferOrigin == 0)
-                    m_stringBufferOrigin = (uint)m_reader.GetCurrentOffset() - 1;
+                if (_stringBufferOrigin == 0)
+                    _stringBufferOrigin = (uint)_reader.GetCurrentOffset() - 1;
             }
 
-            return ReaderCommand.PASS;
+            return ReaderCommand.Pass;
         }
 
         /// <summary>
@@ -626,78 +626,78 @@ namespace Kawapure.DuiCompiler.Parser
         /// </summary>
         protected ReaderCommand TokenizeString()
         {
-            (TextReader.Status trStatus, char character) = m_reader.Read();
+            (TextReader.Status trStatus, char character) = _reader.Read();
 
-            if (m_bModeJustSwitched)
+            if (_fModeJustSwitched)
             {
                 // If we just switched the mode, then we'll want to store the
                 // last quote character to we can remember which terminator
                 // to use for subsequent iterations.
-                m_openingQuoteChar = character;
+                _openingQuoteChar = character;
 
                 // We also want to set the string buffer origin so we can trace
                 // the source of the string.
-                m_stringBufferOrigin = (uint)m_reader.GetCurrentOffset() - 1;
+                _stringBufferOrigin = (uint)_reader.GetCurrentOffset() - 1;
 
                 Debug.Assert(character == '\"' || character == '\'' || character == '<');
-                Debug.Assert(m_stringBuffer.Length == 0);
+                Debug.Assert(_stringBuffer.Length == 0);
 
                 // Now reset the flag because we're done with it for now and
                 // we don't want it to bleed into future iterations at all.
-                m_bModeJustSwitched = false;
+                _fModeJustSwitched = false;
 
                 // Because the below code will terminate, we would essentially
                 // terminate immediately upon parsing the first string literal.
                 // For this reason, we're going to exit now.
-                return ReaderCommand.PASS;
+                return ReaderCommand.Pass;
             }
 
-            if (trStatus == TextReader.Status.OUT_OF_BOUNDS)
+            if (trStatus == TextReader.Status.OutOfBounds)
             {
                 // In this case, it's an unterminated string literal, and we
                 // want to notify the user of this case.
-                return ReaderCommand.BREAK;
+                return ReaderCommand.Break;
             }
 
-            if (m_bParsingEscapeSequence)
+            if (_fParsingEscapeSequence)
             {
                 switch (character)
                 {
                     // \" escaped double quote sequence
                     case '"':
-                        m_stringBuffer.Append('\"');
+                        _stringBuffer.Append('\"');
                         break;
                     // \' escaped single quote sequence
                     case '\'':
-                        m_stringBuffer.Append('\'');
+                        _stringBuffer.Append('\'');
                         break;
                     // \t tab sequence
                     case 't':
-                        m_stringBuffer.Append('\t');
+                        _stringBuffer.Append('\t');
                         break;
                     // \n newline sequence
                     case 'n':
-                        m_stringBuffer.Append('\n');
+                        _stringBuffer.Append('\n');
                         break;
                     // \\ backslash sequence
                     case '\\':
-                        m_stringBuffer.Append('\\');
+                        _stringBuffer.Append('\\');
                         break;
 
                     default:
-                        m_stringBuffer.Append(character);
+                        _stringBuffer.Append(character);
                         break;
                 }
 
-                m_bParsingEscapeSequence = false;
-                return ReaderCommand.PASS;
+                _fParsingEscapeSequence = false;
+                return ReaderCommand.Pass;
             }
             else if (character == '\\')
             {
                 // In this case, we're going to begin an escape sequence.
-                m_bParsingEscapeSequence = true;
+                _fParsingEscapeSequence = true;
             }
-            else if (character == m_openingQuoteChar || m_openingQuoteChar == '<' && character == '>')
+            else if (character == _openingQuoteChar || _openingQuoteChar == '<' && character == '>')
             {
                 /*
                  * The opening quote character is (almost) always the terminator,
@@ -710,27 +710,27 @@ namespace Kawapure.DuiCompiler.Parser
                  * will differ from the opening character.
                  */
                 FlushStringBufferIfPossible();
-                SetMode(TokenizerMode.PARSING_SYMBOL);
+                SetMode(TokenizerMode.ParsingSymbol);
 
                 // We also want to put the terminator character as a token:
                 Token terminatorToken = new(
                     character.ToString(),
-                    m_sourceFile,
+                    _sourceFile,
                     // We substract the previously read amount from the cursor:
-                    (uint)m_reader.GetCurrentOffset() - 1,
-                    Token.TokenType.SYMBOL,
+                    (uint)_reader.GetCurrentOffset() - 1,
+                    Token.TokenType.Symbol,
                     GetAppropriateTokenLanguage()
                 );
                 AddTokenToTokenList(terminatorToken);
 
-                return ReaderCommand.PASS;
+                return ReaderCommand.Pass;
             }
 
             // Finally, since none of the above checks have passed, we will
             // simply place the current character in the string buffer.
-            m_stringBuffer.Append(character);
+            _stringBuffer.Append(character);
 
-            return ReaderCommand.PASS;
+            return ReaderCommand.Pass;
         }
 
         /// <summary>
@@ -739,20 +739,20 @@ namespace Kawapure.DuiCompiler.Parser
         protected ReaderCommand TokenizeComment()
         {
             // We ignore this state, so we just always set it to false:
-            m_bModeJustSwitched = false;
+            _fModeJustSwitched = false;
 
-            int openingSequenceLen = m_openingCommentToken.Length;
+            int openingSequenceLen = _openingCommentToken.Length;
 
             for (int i = 0; i < openingSequenceLen; i++)
             {
-                (TextReader.Status cs, char c) = m_reader.Read();
+                (TextReader.Status cs, char c) = _reader.Read();
 
-                Debug.Assert(cs == TextReader.Status.SUCCESS);
-                Debug.Assert(c == m_openingCommentToken[i]);
+                Debug.Assert(cs == TextReader.Status.Success);
+                Debug.Assert(c == _openingCommentToken[i]);
             }
 
             // Get the comment terminator character and length:
-            string terminator = m_openingCommentToken switch
+            string terminator = _openingCommentToken switch
             {
                 "/*" => "*/",
                 "//" => "\n",
@@ -765,9 +765,9 @@ namespace Kawapure.DuiCompiler.Parser
 
             while (true)
             {
-                (TextReader.Status cs, char c) = m_reader.Read();
+                (TextReader.Status cs, char c) = _reader.Read();
 
-                if (cs == TextReader.Status.SUCCESS)
+                if (cs == TextReader.Status.Success)
                 {
                     // Shift the terminator buffer:
                     for (int i = terminatorLen; i > 0; i--)
@@ -785,9 +785,9 @@ namespace Kawapure.DuiCompiler.Parser
                 }
             }
 
-            SetMode(TokenizerMode.PARSING_SYMBOL);
+            SetMode(TokenizerMode.ParsingSymbol);
 
-            return ReaderCommand.PASS;
+            return ReaderCommand.Pass;
         }
     }
 }

@@ -14,33 +14,33 @@ namespace Kawapure.DuiCompiler.Parser
         /// <summary>
         /// Message describing the nature of the error.
         /// </summary>
-        protected string m_message;
+        protected string _message;
 
         /// <summary>
         /// A reference to the source file.
         /// </summary>
-        protected ITextReaderSourceProvider m_sourceProvider;
+        protected ITextReaderSourceProvider _sourceProvider;
 
         /// <summary>
         /// Origin information of the content that caused this error.
         /// </summary>
-        protected SourceOrigin m_sourceOrigin;
+        protected SourceOrigin _sourceOrigin;
 
         public ParseError(string msg, ITextReaderSourceProvider sourceProvider)
         {
-            m_message = msg;
-            m_sourceProvider = sourceProvider;
+            _message = msg;
+            _sourceProvider = sourceProvider;
         }
 
         public ParseError(string msg, SourceOrigin sourceOrigin)
         {
-            m_message = msg;
-            m_sourceProvider = sourceOrigin.sourceProvider;
-            m_sourceOrigin = sourceOrigin;
+            _message = msg;
+            _sourceProvider = sourceOrigin.sourceProvider;
+            _sourceOrigin = sourceOrigin;
         }
 
         public ParseError(string msg, Token token)
-            : this(msg, token.m_sourceOrigin)
+            : this(msg, token._sourceOrigin)
         {
         }
 

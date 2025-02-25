@@ -27,14 +27,14 @@ namespace Kawapure.DuiCompiler.Parser
         /// <remarks>
         /// Child classes should override the Name property.
         /// </remarks>
-        private readonly string m_name;
+        private readonly string _name;
 
         /// <summary>
         /// The name of this node.
         /// </summary>
         public virtual string Name
         {
-            get => m_name;
+            get => _name;
             private set { }
         }
 
@@ -75,14 +75,14 @@ namespace Kawapure.DuiCompiler.Parser
 
         public ParseNode(SourceOrigin sourceOrigin)
         {
-            m_name = "ParseNode";
+            _name = "ParseNode";
             this.SourceOrigin = sourceOrigin;
         }
 
         public ParseNode(string name, SourceOrigin sourceOrigin)
             : this(sourceOrigin)
         {
-            m_name = name;
+            _name = name;
         }
 
         //---------------------------------------------------------------------------------------------------

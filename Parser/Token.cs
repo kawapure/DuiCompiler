@@ -25,13 +25,13 @@ namespace Kawapure.DuiCompiler.Parser
             /// including special characters like `#` and unquoted textual
             /// strings like `include`.
             /// </summary>
-            SYMBOL,
+            Symbol,
 
             /// <summary>
             /// String literals are enclosed in quotes, and classify as entire
             /// tokens by themselves. An example is "resource.h".
             /// </summary>
-            STRING_LITERAL,
+            StringLiteral,
         }
 
         public enum TokenLanguage
@@ -39,40 +39,40 @@ namespace Kawapure.DuiCompiler.Parser
             /// <summary>
             /// The token targets the DUIXML parser.
             /// </summary>
-            DUIXML,
+            DuiXml,
 
             /// <summary>
             /// The token targets the preprocessor parser.
             /// </summary>
-            PREPROCESSOR,
+            Preprocessor,
         }
 
-        public string m_string { get; protected set; }
-        public readonly SourceOrigin m_sourceOrigin;
-        public readonly TokenType m_type;
-        public readonly TokenLanguage m_language;
+        public string _string { get; protected set; }
+        public readonly SourceOrigin _sourceOrigin;
+        public readonly TokenType _type;
+        public readonly TokenLanguage _language;
 
         public Token(
             string token, 
             ITextReaderSourceProvider sourceProvider, 
             uint sourceFileOffset, 
-            TokenType type = TokenType.SYMBOL,
-            TokenLanguage language = TokenLanguage.DUIXML
+            TokenType type = TokenType.Symbol,
+            TokenLanguage language = TokenLanguage.DuiXml
         )
         {
-            m_string = token;
-            m_sourceOrigin = new SourceOrigin
+            _string = token;
+            _sourceOrigin = new SourceOrigin
             {
                 sourceProvider = sourceProvider,
                 cursorOffset = sourceFileOffset
             };
-            m_type = type;
-            m_language = language;
+            _type = type;
+            _language = language;
         }
 
         public override string ToString()
         {
-            return m_string;
+            return _string;
         }
 
         public static explicit operator string(Token token)
@@ -82,7 +82,7 @@ namespace Kawapure.DuiCompiler.Parser
 
         public string ToSafeString()
         {
-            return Token.ToSafeString(m_string);
+            return Token.ToSafeString(_string);
         }
 
         public static string ToSafeString(string token)
@@ -107,13 +107,13 @@ namespace Kawapure.DuiCompiler.Parser
 
             result.SetAttributeValue("NativeClassName", this.GetType().Name);
 
-            if (m_sourceOrigin.sourceProvider is not SourceFile)
+            if (_sourceOrigin.sourceProvider is not SourceFile)
             {
                 result.SetAttributeValue("AnonymousSource", "true");
             }
             else
             {
-                SourceFile sourceFile = (SourceFile)m_sourceOrigin.sourceProvider;
+                SourceFile sourceFile = (SourceFile)_sourceOrigin.sourceProvider;
 
                 result.SetAttributeValue(
                     "SourceFile",
@@ -123,35 +123,35 @@ namespace Kawapure.DuiCompiler.Parser
 
             result.SetAttributeValue(
                 "SourceOffset",
-                m_sourceOrigin.cursorOffset
+                _sourceOrigin.cursorOffset
             );
 
             result.SetAttributeValue(
                 "SourceLineColumn",
-                m_sourceOrigin.GetLine() + ":" + m_sourceOrigin.GetLineColumn()
+                _sourceOrigin.GetLine() + ":" + _sourceOrigin.GetLineColumn()
             );
 
             result.SetAttributeValue(
                 "TokenType",
-                Enum.GetName(typeof(TokenType), m_type)
+                Enum.GetName(typeof(TokenType), _type)
             );
 
             result.SetAttributeValue(
                 "TokenLanguage",
-                Enum.GetName(typeof(TokenLanguage), m_language)
+                Enum.GetName(typeof(TokenLanguage), _language)
             );
 
-            if (m_string == "\x00")
+            if (_string == "\x00")
             {
                 result.SetAttributeValue("SpecialValue", "Null");
             }
-            else if (m_string == "\n")
+            else if (_string == "\n")
             {
                 result.SetAttributeValue("SpecialValue", "NewLine");
             }
             else
             {
-                XText text = new(m_string);
+                XText text = new(_string);
                 result.Add(text);
             }
 

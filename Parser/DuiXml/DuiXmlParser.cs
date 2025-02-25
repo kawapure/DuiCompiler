@@ -10,25 +10,25 @@ namespace Kawapure.DuiCompiler.Parser.DuiXml
 {
     internal class DuiXmlParser
     {
-        private readonly ITextReaderSourceProvider m_sourceFile;
-        private PreprocessorParser? m_preprocessorParser = null;
-        private WorldNode m_world;
+        private readonly ITextReaderSourceProvider _sourceFile;
+        private PreprocessorParser? _preprocessorParser = null;
+        private WorldNode _world;
 
         public DuiXmlParser(ITextReaderSourceProvider sourceFile)
         {
-            m_sourceFile = sourceFile;
+            _sourceFile = sourceFile;
 
             // If we're coming from a SourceFile, then we want to evaluate the
             // preprocessor nodes in the file, so we execute the preprocessor
             // nodes first to modify the text.
             if (sourceFile is SourceFile)
             {
-                m_preprocessorParser = new PreprocessorParser((SourceFile)m_sourceFile);
+                _preprocessorParser = new PreprocessorParser((SourceFile)_sourceFile);
             }
 
-            m_world = new WorldNode(new SourceOrigin()
+            _world = new WorldNode(new SourceOrigin()
             {
-                sourceProvider = m_sourceFile,
+                sourceProvider = _sourceFile,
                 cursorOffset = 0,
             });
         }

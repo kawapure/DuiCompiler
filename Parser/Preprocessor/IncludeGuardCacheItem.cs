@@ -11,16 +11,16 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
         // SourceFile is a PLACEHOLDER class!!!!!!!!
         // It should be replaced with the object for a preprocessor define
         // when the time comes for that to be implemented.
-        protected WeakReference<SourceFile> m_skipTarget;
+        protected WeakReference<SourceFile> _skipTarget;
 
         public IncludeGuardCacheItem(SourceFile a)
         {
-            m_skipTarget = new(a);
+            _skipTarget = new(a);
         }
 
         public bool ShouldSkip()
         {
-            if (m_skipTarget.TryGetTarget(out SourceFile? a))
+            if (_skipTarget.TryGetTarget(out SourceFile? a))
             {
                 if (a != null)
                 {

@@ -9,17 +9,17 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor
     // TODO: remove, replaced by ParseNode
     internal class PreprocessorStatementNode : ParseNode
     {
-        private readonly string m_name = "PreprocessorStatement";
+        private readonly string _name = "PreprocessorStatement";
 
         public override string Name
         {
-            get => m_name;
+            get => _name;
         }
 
         public PreprocessorStatementNode(string name, SourceOrigin sourceOrigin)
             : base(sourceOrigin)
         {
-            m_name = name;
+            _name = name;
         }
     }
 }

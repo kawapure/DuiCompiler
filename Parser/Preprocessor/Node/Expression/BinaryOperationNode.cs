@@ -42,14 +42,14 @@ namespace Kawapure.DuiCompiler.Parser.Preprocessor.Node.Expression
 
         public enum EType
         {
-            INVALID,
-            BITWISE_AND,
-            BITWISE_OR,
-            BITWISE_XOR,
-            BITWISE_LSHIFT,
-            BITWISE_RSHIFT,
-            LOGICAL_AND,
-            LOGICAL_OR,
+            Invalid,
+            BitwiseAnd,
+            BitwiseOr,
+            BitwiseXor,
+            BitwiseLeftShift,
+            BitwiseRightShift,
+            LogicalAnd,
+            LogicalOr,
         }
 
 #pragma warning disable CS8604 // Possible null reference argument for parameter 'value'

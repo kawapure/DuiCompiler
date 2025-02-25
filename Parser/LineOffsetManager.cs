@@ -11,13 +11,13 @@ namespace Kawapure.DuiCompiler.Parser
     /// </summary>
     internal class LineOffsetManager
     {
-        protected string m_source;
+        protected string _source;
 
-        protected int[]? m_cachedOffsets = null;
+        protected int[]? _cachedOffsets = null;
 
         public LineOffsetManager(string source)
         {
-            m_source = source;
+            _source = source;
         }
 
         /// <summary>
@@ -37,22 +37,22 @@ namespace Kawapure.DuiCompiler.Parser
              * text editor if tabs are used instead of spaces.
              */
 
-            if (m_cachedOffsets is not null)
+            if (_cachedOffsets is not null)
             {
-                return m_cachedOffsets;
+                return _cachedOffsets;
             }
             else
             {
                 List<int> offsets = new();
 
-                for (int i = 0; i < m_source.Length && i != -1; i = m_source.IndexOf("\n", i + 1))
+                for (int i = 0; i < _source.Length && i != -1; i = _source.IndexOf("\n", i + 1))
                 {
                     offsets.Add(i);
                 }
 
                 int[] arr = offsets.ToArray();
-                m_cachedOffsets = arr;
-                return m_cachedOffsets;
+                _cachedOffsets = arr;
+                return _cachedOffsets;
             }
         }
     }

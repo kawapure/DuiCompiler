@@ -10,50 +10,50 @@ namespace Kawapure.DuiCompiler.Parser
     {
         public enum Status
         {
-            SUCCESS,
-            UNKNOWN_ERROR,
-            OUT_OF_BOUNDS,
+            Success,
+            UnknownError,
+            OutOfBounds,
         }
 
-        readonly ITextReaderSourceProvider m_source;
-        int m_cursor;
+        readonly ITextReaderSourceProvider _source;
+        int _cursor;
 
         public TextReader(ITextReaderSourceProvider fileReader, int defaultCursor = 0)
         {
-            m_source = fileReader;
-            m_cursor = defaultCursor;
+            _source = fileReader;
+            _cursor = defaultCursor;
         }
 
         public (Status, char) Peek(int offset = 1)
         {
-            long fileOffset = m_cursor + offset;
+            long fileOffset = _cursor + offset;
 
             char nextCharacter;
 
-            if (fileOffset <= m_source.Contents.Length)
+            if (fileOffset <= _source.Contents.Length)
             {
                 try
                 {
-                    nextCharacter = m_source.Contents[(int)fileOffset];
+                    nextCharacter = _source.Contents[(int)fileOffset];
                 }
                 catch (Exception)
                 {
-                    return (Status.UNKNOWN_ERROR, char.MinValue);
+                    return (Status.UnknownError, char.MinValue);
                 }
             }
             else
             {
-                return (Status.OUT_OF_BOUNDS, char.MinValue);
+                return (Status.OutOfBounds, char.MinValue);
             }
 
-            return (Status.SUCCESS, nextCharacter);
+            return (Status.Success, nextCharacter);
         }
 
         public (Status, char) Read(int offset = 0)
         {
             (Status status, char character) = Peek(offset);
 
-            m_cursor += offset + 1;
+            _cursor += offset + 1;
 
             return (status, character);
         }
@@ -62,7 +62,7 @@ namespace Kawapure.DuiCompiler.Parser
         {
             (Status s, char c) = Peek(-1 * offset);
 
-            m_cursor -= offset;
+            _cursor -= offset;
 
             return (s, c);
         }
@@ -71,7 +71,7 @@ namespace Kawapure.DuiCompiler.Parser
         {
             try
             {
-                return m_source.Contents[m_cursor + offset] == nextChar;
+                return _source.Contents[_cursor + offset] == nextChar;
             }
             catch
             {
@@ -88,7 +88,7 @@ namespace Kawapure.DuiCompiler.Parser
         {
             try
             {
-                return m_source.Contents.Substring(m_cursor + offset, sequence.Length) == sequence;
+                return _source.Contents.Substring(_cursor + offset, sequence.Length) == sequence;
             }
             catch
             {
@@ -108,24 +108,24 @@ namespace Kawapure.DuiCompiler.Parser
 
         public void Reset()
         {
-            m_cursor = 0;
+            _cursor = 0;
         }
 
         public Status SetCursor(int position)
         {
-            if (position > m_source.Contents.Length)
+            if (position > _source.Contents.Length)
             {
-                return Status.OUT_OF_BOUNDS;
+                return Status.OutOfBounds;
             }
 
-            m_cursor = position;
+            _cursor = position;
 
-            return Status.SUCCESS;
+            return Status.Success;
         }
 
         public int GetCurrentOffset()
         {
-            return m_cursor;
+            return _cursor;
         }
     }
 }

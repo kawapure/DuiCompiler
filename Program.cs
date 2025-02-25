@@ -48,8 +48,8 @@ namespace Kawapure.DuiCompiler
 
             if (Options.s_inputFile != null)
             {
-                Parser.SourceFile fileReader = new(Options.s_inputFile, Parser.SourceFile.FileType.DUI_UIFILE);
-                List<Parser.Token> tokens = fileReader.m_tokenizer.Tokenize();
+                Parser.SourceFile fileReader = new(Options.s_inputFile, Parser.SourceFile.FileType.DuiUiFile);
+                List<Parser.Token> tokens = fileReader._tokenizer.Tokenize();
 
                 TokenStream tokenStream = new(tokens);
 

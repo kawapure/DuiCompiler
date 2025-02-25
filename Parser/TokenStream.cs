@@ -34,7 +34,7 @@ namespace Kawapure.DuiCompiler.Parser
         {
             if (tokens.Count > this.position - 1)
             {
-                SourceOrigin lastSrcOrigin = tokens[this.position - 1].m_sourceOrigin;
+                SourceOrigin lastSrcOrigin = tokens[this.position - 1]._sourceOrigin;
 
                 throw new ParseError(
                     "Unexpected end of file",
@@ -49,13 +49,13 @@ namespace Kawapure.DuiCompiler.Parser
         {
             Token token = this[this.position];
 
-            if (token.m_string != nextSequence)
+            if (token._string != nextSequence)
             {
                 throw new ParseError(
                     $"Unexpected token \"{token.ToSafeString}\", " +
                     $"expected \"{Token.ToSafeString(nextSequence)}\"" +
                     null != errorMsg ? $" {errorMsg}" : "",
-                    token.m_sourceOrigin
+                    token._sourceOrigin
                 );
             }
 
