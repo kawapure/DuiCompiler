@@ -28,6 +28,7 @@ namespace Kawapure.DuiCompiler
             ".dui", // Possible common extension.
             ".ui",  // Microsoft official extension
             ".uix", // Microsoft official extension
+            ".uipp", // Microsoft official extension
             ".xml", // Common in the modding community.
         };
 
@@ -137,7 +138,7 @@ namespace Kawapure.DuiCompiler
         public static void ShowHelp()
         {
             Console.WriteLine($"DuiCompiler DirectUI UI file compiler version {DuiCompilerMain.VERSION}");
-            Console.WriteLine("by Isabella (kawapure)");
+            Console.WriteLine("by Isabella Lulamoon (kawapure)");
             Console.WriteLine();
 
 #if DEBUG
